@@ -1,0 +1,67 @@
+РАБОЧАЯ ПОСЛЕДОВАТЕЛЬНОСТЬ БЕЗ EMULATION:
+python
+using sysbus
+python
+mach create
+python
+machine LoadPlatformDescription @platforms/boards/stm32f4_discovery.repl
+python
+sysbus WriteDoubleWord 0x08000000 0x20001000
+python
+sysbus WriteDoubleWord 0x08000004 0x08000009
+python
+sysbus WriteDoubleWord 0x08000008 0xE7FE
+python
+start
+python
+echo "✅ СИСТЕМА ЗАПУЩЕНА!"
+🎯 ТЕПЕРЬ ТЕСТИРУЕМ GPIO БЕЗ LED:
+python
+# Включаем тактирование GPIO порта A
+sysbus WriteDoubleWord 0x40023830 0x00000001
+python
+# Настраиваем PA0 как выход
+sysbus WriteDoubleWord 0x40020000 0x00000001
+python
+# Включаем PA0 (условно "включаем светодиод")
+sysbus WriteDoubleWord 0x40020014 0x00000001
+python
+echo "💡 'Светодиод' включен"
+python
+# Выключаем PA0
+sysbus WriteDoubleWord 0x40020014 0x00000000
+python
+echo "💡 'Светодиод' выключен"
+🔧 ПРОСТАЯ РАБОЧАЯ ПРОГРАММА С UART:
+python
+using sysbus
+mach create
+machine LoadPlatformDescription @platforms/boards/stm32f4_discovery.repl
+
+# Загружаем программу
+sysbus WriteDoubleWord 0x08000000 0x20001000
+sysbus WriteDoubleWord 0x08000004 0x08000009
+sysbus WriteDoubleWord 0x08000008 0xE7FE
+
+# Настраиваем UART для вывода
+showAnalyzer sysbus.usart2
+
+start
+echo "🎉 RENODE РАБОТАЕТ!"
+🎮 ИГРАЕМ С ПАМЯТЬЮ И РЕГИСТРАМИ:
+python
+# Записываем данные в память
+sysbus WriteDoubleWord 0x20000000 0x12345678
+python
+# Читаем из памяти
+$value = sysbus ReadDoubleWord 0x20000000
+python
+echo "📝 Прочитали из памяти: $value"
+python
+# Создаем счетчик
+$counter = 0
+python
+while $counter < 5:
+    $counter = $counter + 1
+    echo "🔢 Счетчик: $counter"
+end
